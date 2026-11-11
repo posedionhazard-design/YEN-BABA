@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '*.zip'
+  workflow_dispatch: # GitHub arayüzünden manuel başlatma izni verir
 
 jobs:
   unzip:
@@ -16,7 +17,6 @@ jobs:
 
       - name: Extract zip and clean up
         run: |
-          # Yüklenen zip dosyasını bul ve çıkar (alt klasörleri ve gizli dosyaları koruyarak)
           for z in *.zip; do
             if [ -f "$z" ]; then
               echo "Extracting $z..."
