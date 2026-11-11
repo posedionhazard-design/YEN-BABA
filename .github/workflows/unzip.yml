@@ -1,0 +1,33 @@
+name: Unzip Archive and Clean
+
+on:
+  push:
+    paths:
+      - '*.zip'
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract zip and clean up
+        run: |
+          # Yüklenen zip dosyasını bul ve çıkar (alt klasörleri ve gizli dosyaları koruyarak)
+          for z in *.zip; do
+            if [ -f "$z" ]; then
+              echo "Extracting $z..."
+              unzip -o "$z"
+              echo "Removing $z..."
+              rm "$z"
+            fi
+          done
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-unzip archive and remove zip file"
+          branch: main
