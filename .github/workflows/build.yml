@@ -16,20 +16,23 @@ jobs:
     - name: Select Xcode Version
       run: sudo xcode-select -s /Applications/Xcode.app
 
-    - name: Clean and Build Dynamic Library
+    - name: Automatically Find and Build Project
       run: |
-        echo "Starting build process for KvaraBB..."
+        echo "Proje dosyası aranıyor..."
+        PROJECT_FILE=$(find . -name "*.xcodeproj" -maxdepth 2 | head -n 1)
         
-        # Proje dosyasının varlığını doğrulama
-        if [ ! -d "KvaraBB" ]; then
-          echo "Error: KvaraBB directory not found!"
+        if [ -z "$PROJECT_FILE" ]; then
+          echo "Hata: Repoda hiçbir .xcodeproj dosyası bulunamadı!"
           exit 1
         fi
-
-        # Xcodebuild ile projenin tüm dosyalarını ve alt klasörlerini derleme
-        # Sadece iphoneos değil, simülatör veya genel mimari çakışmalarını önlemek için Release konfigürasyonu uygulanır
-        xcodebuild -project "KvaraBB/KvaraBB.xcodeproj" \
-                   -scheme "KvaraBB" \
+        
+        echo "Bulunan proje: $PROJECT_FILE"
+        PROJECT_NAME=$(basename "$PROJECT_FILE" .xcodeproj)
+        echo "Şema Adı: $PROJECT_NAME"
+        
+        # Bulunan dosya ve şema adı ile derleme işlemi
+        xcodebuild -project "$PROJECT_FILE" \
+                   -scheme "$PROJECT_NAME" \
                    -sdk iphoneos \
                    -configuration Release \
                    clean build \
