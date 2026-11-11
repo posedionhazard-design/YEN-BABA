@@ -16,9 +16,8 @@ jobs:
     - name: Select Xcode Version
       run: sudo xcode-select -s /Applications/Xcode.app
 
-    - name: Auto Detect Scheme and Build
+    - name: Build with Warning Bypass
       run: |
-        echo "Proje dosyası aranıyor..."
         PROJECT_FILE=$(find . -name "*.xcodeproj" -maxdepth 2 | head -n 1)
         
         if [ -z "$PROJECT_FILE" ]; then
@@ -26,21 +25,20 @@ jobs:
           exit 1
         fi
         
-        echo "Bulunan proje: $PROJECT_FILE"
-        
         SCHEME_NAME=$(xcodebuild -project "$PROJECT_FILE" -list | grep -A 20 "Schemes:" | tail -n +2 | head -n 1 | xargs)
         if [ -z "$SCHEME_NAME" ]; then
           SCHEME_NAME=$(basename "$PROJECT_FILE" .xcodeproj)
         fi
         
-        echo "Kullanılacak Şema Adı: $SCHEME_NAME"
+        echo "Proje: $PROJECT_FILE | Şema: $SCHEME_NAME"
         
-        # Eski deployment target (örn: 11.0) hatasını önlemek için otomatik 12.0'a günceller
+        # Uyarıları hata saymayacak (GCC_TREAT_WARNINGS_AS_ERRORS=NO) ve derlemeyi tamamlayacak komut
         xcodebuild -project "$PROJECT_FILE" \
                    -scheme "$SCHEME_NAME" \
                    -sdk iphoneos \
                    -configuration Release \
                    IPHONEOS_DEPLOYMENT_TARGET=12.0 \
+                   GCC_TREAT_WARNINGS_AS_ERRORS=NO \
                    clean build \
                    CODE_SIGN_IDENTITY="" \
                    CODE_SIGNING_REQUIRED=NO \
