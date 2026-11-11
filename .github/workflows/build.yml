@@ -28,21 +28,19 @@ jobs:
         
         echo "Bulunan proje: $PROJECT_FILE"
         
-        # Projenin içindeki geçerli şemaları (schemes) listele ve ilkini seç
         SCHEME_NAME=$(xcodebuild -project "$PROJECT_FILE" -list | grep -A 20 "Schemes:" | tail -n +2 | head -n 1 | xargs)
-        
         if [ -z "$SCHEME_NAME" ]; then
-          # Eğer otomatik şema bulunamazsa proje dosyasının adını şema yap
           SCHEME_NAME=$(basename "$PROJECT_FILE" .xcodeproj)
         fi
         
         echo "Kullanılacak Şema Adı: $SCHEME_NAME"
         
-        # Derleme işlemi
+        # Eski deployment target (örn: 11.0) hatasını önlemek için otomatik 12.0'a günceller
         xcodebuild -project "$PROJECT_FILE" \
                    -scheme "$SCHEME_NAME" \
                    -sdk iphoneos \
                    -configuration Release \
+                   IPHONEOS_DEPLOYMENT_TARGET=12.0 \
                    clean build \
                    CODE_SIGN_IDENTITY="" \
                    CODE_SIGNING_REQUIRED=NO \
